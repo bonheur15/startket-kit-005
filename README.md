@@ -185,6 +185,24 @@ make help  # Show all available targets
 
 ---
 
+## CI/CD (GitHub Actions)
+
+This project includes fully configured GitHub Actions workflows for Continuous Integration and Releases.
+
+### 1. Continuous Integration (`ci.yml`)
+Triggered on `push` and `pull_request` to the `main` branch:
+- **Backend Tests & Lint**: Runs `go vet`, `staticcheck`, and Go tests with the race detector enabled.
+- **Frontend Build**: Installs npm dependencies and builds the Vite frontend.
+- **Full Binary Build**: Combines the frontend and backend into a single binary artifact that can be downloaded from the run summary.
+
+### 2. Automated Releases (`release.yml`)
+Triggered automatically when pushing a semantic version tag (e.g., `v1.0.0`):
+- **Cross-Compilation**: Builds combined binaries for Linux, macOS (Darwin), and Windows (`amd64` and `arm64`).
+- **GitHub Release**: Creates a GitHub Release, generates notes, and attaches all compiled binaries.
+- **Docker Image**: Builds and pushes a Docker image to GitHub Container Registry (GHCR) using the multi-stage Dockerfile.
+
+---
+
 ## Versioning
 
 The version is determined in this priority order:
