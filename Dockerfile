@@ -17,8 +17,8 @@ ARG VERSION=dev
 ARG GIT_COMMIT=unknown
 
 WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
+COPY go.mod go.sum* ./
+RUN go mod download || true
 
 COPY . .
 COPY --from=frontend-builder /app/web/dist ./cmd/server/web/dist
