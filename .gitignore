@@ -39,3 +39,9 @@ Thumbs.db
 # Temporary
 tmp/
 *.log
+
+# Database
+data/
+*.db
+*.db-wal
+*.db-shm

@@ -43,6 +43,10 @@ type Config struct {
 
 	// Frontend
 	ServeFrontend bool
+
+	// Database
+	DBPath         string
+	DBBusyTimeout  int
 }
 
 // New creates a new Config with values from environment variables,
@@ -74,6 +78,9 @@ func New() *Config {
 		CompressionLevel:   envInt("COMPRESSION_LEVEL", 5),
 
 		ServeFrontend: envBool("SERVE_FRONTEND", true),
+
+		DBPath:        envString("DB_PATH", "data/app.db"),
+		DBBusyTimeout: envInt("DB_BUSY_TIMEOUT", 5000),
 	}
 }
 

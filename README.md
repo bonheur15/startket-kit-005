@@ -14,10 +14,11 @@ A production-ready fullstack starter kit with **Go** backend and **React** front
 - `/healthz` — System health with metrics (memory, goroutines, uptime, GC)
 - `/version` — Build info with git commit, branch, timestamp
 - `/readyz` — Lightweight readiness probe
+- **SQLite database** with WAL mode, auto-migrations, and production-tuned pragmas
 - Environment-based configuration with sensible defaults
 - Structured logging via `slog` (text/JSON formats)
 - Frontend embedded via `go:embed` into the binary
-- Zero external dependencies (Go stdlib only)
+- Pure Go SQLite driver (no CGO required)
 
 **Frontend (React + Vite)**
 - Modern dashboard showing real-time health & version
@@ -155,6 +156,8 @@ All configuration is via environment variables with sensible defaults:
 | `RATE_LIMIT_BURST` | `200` | Rate limit burst size |
 | `COMPRESSION_ENABLED` | `true` | Enable gzip compression |
 | `SERVE_FRONTEND` | `true` | Serve embedded frontend |
+| `DB_PATH` | `data/app.db` | SQLite database file path (`:memory:` for in-memory) |
+| `DB_BUSY_TIMEOUT` | `5000` | SQLite busy timeout in milliseconds |
 
 ---
 
@@ -233,6 +236,10 @@ go-starter-kit/
 │   └── embed.go            # Build-tag gated frontend embedding
 ├── internal/
 │   ├── config/config.go    # Env-based configuration
+│   ├── database/
+│   │   ├── database.go     # SQLite connection with WAL + production pragmas
+│   │   ├── migrate.go      # Versioned migration runner
+│   │   └── migrations.go   # Default schema (users, sessions, settings)
 │   ├── handler/
 │   │   ├── health.go       # /healthz endpoint
 │   │   ├── version.go      # /version endpoint (ldflags injection)
@@ -248,6 +255,7 @@ go-starter-kit/
 │   │   └── security.go     # Security headers
 │   ├── router/router.go    # Route registration + middleware wiring
 │   └── server/server.go    # HTTP server with graceful shutdown
+├── data/                   # SQLite database files (gitignored)
 ├── web/                    # React frontend (Vite)
 │   ├── src/
 │   │   ├── App.jsx         # Main dashboard component

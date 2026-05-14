@@ -11,7 +11,7 @@ COPY web/ ./
 RUN npm run build
 
 # --- Stage 2: Build backend ---
-FROM golang:1.24-alpine AS backend-builder
+FROM golang:1.25-alpine AS backend-builder
 
 ARG VERSION=dev
 ARG GIT_COMMIT=unknown
@@ -28,14 +28,13 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
     -ldflags "-s -w \
         -X 'github.com/bonheur/go-starter-kit/internal/handler.Version=${VERSION}' \
         -X 'github.com/bonheur/go-starter-kit/internal/handler.GitCommit=${GIT_COMMIT}' \
-        -X 'github.com/bonheur/go-starter-kit/internal/handler.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)' \
-        -X 'github.com/bonheur/go-starter-kit/internal/handler.GoVersion=$(go version | awk '{print $3}')'" \
+        -X 'github.com/bonheur/go-starter-kit/internal/handler.BuildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ)'" \
     -trimpath \
     -o /app/bin/server \
     ./cmd/server
 
 # --- Stage 3: Production ---
-FROM alpine:3.20 AS production
+FROM alpine:3.21 AS production
 
 RUN apk --no-cache add ca-certificates tzdata && \
     adduser -D -g '' appuser
@@ -43,6 +42,10 @@ RUN apk --no-cache add ca-certificates tzdata && \
 WORKDIR /app
 
 COPY --from=backend-builder /app/bin/server ./server
+
+# Create data directory for SQLite database.
+RUN mkdir -p /app/data && chown appuser:appuser /app/data
+VOLUME ["/app/data"]
 
 USER appuser
 

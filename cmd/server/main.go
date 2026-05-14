@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/bonheur/go-starter-kit/internal/config"
+	"github.com/bonheur/go-starter-kit/internal/database"
 	"github.com/bonheur/go-starter-kit/internal/router"
 	"github.com/bonheur/go-starter-kit/internal/server"
 )
@@ -22,6 +25,31 @@ func main() {
 
 	// Setup structured logger
 	logger := setupLogger(cfg)
+
+	// Ensure data directory exists for SQLite.
+	if dir := filepath.Dir(cfg.DBPath); dir != "" && dir != "." {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			logger.Error("failed to create data directory", slog.String("path", dir), slog.String("error", err.Error()))
+			os.Exit(1)
+		}
+	}
+
+	// Open database with WAL mode.
+	db, err := database.Open(database.Config{
+		Path:        cfg.DBPath,
+		BusyTimeout: cfg.DBBusyTimeout,
+	}, logger)
+	if err != nil {
+		logger.Error("database open failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
+	defer db.Close()
+
+	// Run migrations.
+	if err := db.Migrate(context.Background(), database.DefaultMigrations); err != nil {
+		logger.Error("database migration failed", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
 
 	// Create router
 	handler := router.New(cfg, logger)
