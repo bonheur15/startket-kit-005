@@ -1,0 +1,8 @@
+.git
+bin/
+*.md
+Makefile
+.gitignore
+coverage.*
+web/node_modules
+web/dist
