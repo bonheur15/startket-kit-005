@@ -85,7 +85,8 @@ build: build-frontend build-full
 build-full:
 	@echo "$(CYAN)▸ Building Go binary with embedded frontend...$(RESET)"
 	@mkdir -p $(BIN_DIR)
-	@cp -r $(WEB_DIR)/dist $(CMD_DIR)/web/dist 2>/dev/null || (echo "$(RED)✗ web/dist not found. Run 'make build-frontend' first$(RESET)" && exit 1)
+	@mkdir -p $(CMD_DIR)/web
+	@cp -r $(WEB_DIR)/dist $(CMD_DIR)/web/dist
 	CGO_ENABLED=0 go build \
 		-tags embed_frontend \
 		-ldflags "$(LDFLAGS)" \
