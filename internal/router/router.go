@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/bonheur/go-starter-kit/internal/bridge"
 	"github.com/bonheur/go-starter-kit/internal/config"
 	"github.com/bonheur/go-starter-kit/internal/handler"
 	"github.com/bonheur/go-starter-kit/internal/middleware"
@@ -19,11 +20,29 @@ func New(cfg *config.Config, logger *slog.Logger) http.Handler {
 	healthHandler := handler.NewHealthHandler()
 	apiHandler := handler.NewAPIHandler()
 
+	// --- GoBridge setup ---
+	bridgeRegistry := bridge.NewRegistry(logger)
+	bridge.Register(bridgeRegistry, "login", apiHandler.Login, "Authenticates a user and returns a token.")
+	bridge.Register(bridgeRegistry, "hello", apiHandler.Hello, "Returns a greeting message.")
+
+	// Auto-generate Typescript types in development
+	if cfg.IsDevelopment() {
+		err := bridgeRegistry.GenerateTypescript("web/src/lib/bridge.ts")
+		if err != nil {
+			logger.Error("failed to generate bridge types", slog.String("error", err.Error()))
+		} else {
+			logger.Info("bridge types generated", slog.String("path", "web/src/lib/bridge.ts"))
+		}
+	}
+
 	// --- API Routes ---
 	mux.HandleFunc("/healthz", healthHandler.ServeHTTP)
 	mux.HandleFunc("/readyz", apiHandler.HandleReadiness)
 	mux.HandleFunc("/version", handler.VersionHandler)
 	mux.HandleFunc("/api/hello", apiHandler.HandleHello)
+	
+	// Bridge endpoint
+	mux.Handle("/api/v1/bridge/", http.StripPrefix("/api/v1/bridge/", bridgeRegistry))
 
 	// --- Middleware Stack ---
 	// Build middleware chain (outermost first)
