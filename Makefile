@@ -78,12 +78,12 @@ BOLD   := \033[1m
 ## build: Build full binary with embedded frontend (default)
 .PHONY: build
 build: build-frontend build-full
-	@echo "$(GREEN)✓ Full build complete: $(BINARY) ($(APP_VERSION))$(RESET)"
+	@echo "$(GREEN)[OK] Full build complete: $(BINARY) ($(APP_VERSION))$(RESET)"
 
 ## build-full: Build Go binary with embedded frontend (requires web/dist)
 .PHONY: build-full
 build-full:
-	@echo "$(CYAN)▸ Building Go binary with embedded frontend...$(RESET)"
+	@echo "$(CYAN)> Building Go binary with embedded frontend...$(RESET)"
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(CMD_DIR)/web
 	@cp -r $(WEB_DIR)/dist $(CMD_DIR)/web/dist
@@ -94,7 +94,7 @@ build-full:
 		-o $(BINARY) \
 		$(CMD_DIR)
 	@rm -rf $(CMD_DIR)/web
-	@echo "$(GREEN)✓ Binary built: $(BINARY)$(RESET)"
+	@echo "$(GREEN)[OK] Binary built: $(BINARY)$(RESET)"
 	@echo "  Version:  $(APP_VERSION)"
 	@echo "  Commit:   $(GIT_COMMIT)"
 	@echo "  Size:     $$(du -h $(BINARY) | cut -f1)"
@@ -102,26 +102,26 @@ build-full:
 ## build-backend: Build backend only (no embedded frontend)
 .PHONY: build-backend
 build-backend:
-	@echo "$(CYAN)▸ Building Go backend only...$(RESET)"
+	@echo "$(CYAN)> Building Go backend only...$(RESET)"
 	@mkdir -p $(BIN_DIR)
 	CGO_ENABLED=0 go build \
 		-ldflags "$(LDFLAGS)" \
 		-trimpath \
 		-o $(BINARY) \
 		$(CMD_DIR)
-	@echo "$(GREEN)✓ Backend built: $(BINARY) ($(APP_VERSION))$(RESET)"
+	@echo "$(GREEN)[OK] Backend built: $(BINARY) ($(APP_VERSION))$(RESET)"
 
 ## build-frontend: Build React frontend for production
 .PHONY: build-frontend
 build-frontend:
-	@echo "$(CYAN)▸ Building React frontend...$(RESET)"
+	@echo "$(CYAN)> Building React frontend...$(RESET)"
 	@cd $(WEB_DIR) && npm install --silent && npm run build
-	@echo "$(GREEN)✓ Frontend built: $(WEB_DIR)/dist$(RESET)"
+	@echo "$(GREEN)[OK] Frontend built: $(WEB_DIR)/dist$(RESET)"
 
 ## build-all-platforms: Build for multiple platforms
 .PHONY: build-all-platforms
 build-all-platforms: build-frontend
-	@echo "$(CYAN)▸ Building for all platforms...$(RESET)"
+	@echo "$(CYAN)> Building for all platforms...$(RESET)"
 	@mkdir -p $(BIN_DIR)
 	@for platform in "linux/amd64" "linux/arm64" "darwin/amd64" "darwin/arm64" "windows/amd64"; do \
 		os=$$(echo $$platform | cut -d/ -f1); \
@@ -129,7 +129,7 @@ build-all-platforms: build-frontend
 		ext=""; \
 		if [ "$$os" = "windows" ]; then ext=".exe"; fi; \
 		output="$(BIN_DIR)/$(APP_NAME)-$$os-$$arch$$ext"; \
-		echo "  → $$os/$$arch"; \
+		echo "  -> $$os/$$arch"; \
 		cp -r $(WEB_DIR)/dist $(CMD_DIR)/web/dist; \
 		GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 go build \
 			-tags embed_frontend \
@@ -139,7 +139,7 @@ build-all-platforms: build-frontend
 			$(CMD_DIR); \
 		rm -rf $(CMD_DIR)/web; \
 	done
-	@echo "$(GREEN)✓ All platform builds complete$(RESET)"
+	@echo "$(GREEN)[OK] All platform builds complete$(RESET)"
 	@ls -lh $(BIN_DIR)/
 
 # ============================================================================
@@ -149,7 +149,7 @@ build-all-platforms: build-frontend
 ## dev: Run backend and frontend in development mode (parallel)
 .PHONY: dev
 dev:
-	@echo "$(CYAN)▸ Starting development servers...$(RESET)"
+	@echo "$(CYAN)> Starting development servers...$(RESET)"
 	@echo "  Backend:  http://localhost:8080"
 	@echo "  Frontend: http://localhost:5173"
 	@$(MAKE) -j2 dev-backend dev-frontend
@@ -157,7 +157,7 @@ dev:
 ## dev-backend: Run Go backend with live reload (using go run)
 .PHONY: dev-backend
 dev-backend:
-	@echo "$(CYAN)▸ Starting Go backend (dev mode)...$(RESET)"
+	@echo "$(CYAN)> Starting Go backend (dev mode)...$(RESET)"
 	APP_ENV=development LOG_LEVEL=debug SERVE_FRONTEND=false go run \
 		-ldflags "$(LDFLAGS)" \
 		$(CMD_DIR)
@@ -165,7 +165,7 @@ dev-backend:
 ## dev-frontend: Run Vite dev server with HMR
 .PHONY: dev-frontend
 dev-frontend:
-	@echo "$(CYAN)▸ Starting Vite dev server...$(RESET)"
+	@echo "$(CYAN)> Starting Vite dev server...$(RESET)"
 	@cd $(WEB_DIR) && npm run dev
 
 # ============================================================================
@@ -175,35 +175,35 @@ dev-frontend:
 ## test: Run all Go tests
 .PHONY: test
 test:
-	@echo "$(CYAN)▸ Running tests...$(RESET)"
+	@echo "$(CYAN)> Running tests...$(RESET)"
 	go test -v -race -count=1 -coverprofile=coverage.out ./...
-	@echo "$(GREEN)✓ Tests passed$(RESET)"
+	@echo "$(GREEN)[OK] Tests passed$(RESET)"
 
 ## test-coverage: Run tests and open coverage report
 .PHONY: test-coverage
 test-coverage: test
-	@echo "$(CYAN)▸ Generating coverage report...$(RESET)"
+	@echo "$(CYAN)> Generating coverage report...$(RESET)"
 	go tool cover -html=coverage.out -o coverage.html
-	@echo "$(GREEN)✓ Coverage report: coverage.html$(RESET)"
+	@echo "$(GREEN)[OK] Coverage report: coverage.html$(RESET)"
 
 ## lint: Run Go vet and staticcheck
 .PHONY: lint
 lint:
-	@echo "$(CYAN)▸ Running linter...$(RESET)"
+	@echo "$(CYAN)> Running linter...$(RESET)"
 	go vet ./...
 	@if command -v staticcheck > /dev/null 2>&1; then \
 		staticcheck ./...; \
 	else \
-		echo "$(YELLOW)⚠ staticcheck not installed. Run: go install honnef.co/go/tools/cmd/staticcheck@latest$(RESET)"; \
+		echo "$(YELLOW)[WARN] staticcheck not installed. Run: go install honnef.co/go/tools/cmd/staticcheck@latest$(RESET)"; \
 	fi
-	@echo "$(GREEN)✓ Lint passed$(RESET)"
+	@echo "$(GREEN)[OK] Lint passed$(RESET)"
 
 ## fmt: Format Go source code
 .PHONY: fmt
 fmt:
-	@echo "$(CYAN)▸ Formatting code...$(RESET)"
+	@echo "$(CYAN)> Formatting code...$(RESET)"
 	go fmt ./...
-	@echo "$(GREEN)✓ Code formatted$(RESET)"
+	@echo "$(GREEN)[OK] Code formatted$(RESET)"
 
 # ============================================================================
 # Release
@@ -213,15 +213,15 @@ fmt:
 .PHONY: release
 release:
 ifndef VERSION
-	@echo "$(RED)✗ VERSION is required. Usage: make release VERSION=1.0.0$(RESET)"
+	@echo "$(RED)[ERR] VERSION is required. Usage: make release VERSION=1.0.0$(RESET)"
 	@exit 1
 endif
-	@echo "$(CYAN)▸ Creating release v$(VERSION)...$(RESET)"
+	@echo "$(CYAN)> Creating release v$(VERSION)...$(RESET)"
 	@echo "$(VERSION)" > $(VERSION_FILE)
 	@git add $(VERSION_FILE)
 	@git commit -m "release: v$(VERSION)" || true
 	@git tag -a "v$(VERSION)" -m "Release v$(VERSION)"
-	@echo "$(GREEN)✓ Release v$(VERSION) created$(RESET)"
+	@echo "$(GREEN)[OK] Release v$(VERSION) created$(RESET)"
 	@echo "  Push with: git push origin main --tags"
 
 ## version: Display current version
@@ -240,14 +240,14 @@ version:
 ## docker: Build Docker image
 .PHONY: docker
 docker:
-	@echo "$(CYAN)▸ Building Docker image...$(RESET)"
+	@echo "$(CYAN)> Building Docker image...$(RESET)"
 	docker build \
 		--build-arg VERSION=$(APP_VERSION) \
 		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
 		-t $(APP_NAME):$(APP_VERSION) \
 		-t $(APP_NAME):latest \
 		.
-	@echo "$(GREEN)✓ Docker image built: $(APP_NAME):$(APP_VERSION)$(RESET)"
+	@echo "$(GREEN)[OK] Docker image built: $(APP_NAME):$(APP_VERSION)$(RESET)"
 
 ## docker-run: Run the Docker container
 .PHONY: docker-run
@@ -261,13 +261,13 @@ docker-run:
 ## clean: Remove all build artifacts
 .PHONY: clean
 clean:
-	@echo "$(CYAN)▸ Cleaning build artifacts...$(RESET)"
+	@echo "$(CYAN)> Cleaning build artifacts...$(RESET)"
 	@rm -rf $(BIN_DIR)
 	@rm -rf $(WEB_DIR)/dist
 	@rm -rf $(CMD_DIR)/web
 	@rm -f coverage.out coverage.html
 	@rm -f server
-	@echo "$(GREEN)✓ Clean$(RESET)"
+	@echo "$(GREEN)[OK] Clean$(RESET)"
 
 # ============================================================================
 # Help
@@ -277,7 +277,7 @@ clean:
 .PHONY: help
 help:
 	@echo ""
-	@echo "$(BOLD)$(APP_NAME)$(RESET) — Fullstack Go + React Starter Kit"
+	@echo "$(BOLD)$(APP_NAME)$(RESET) - Fullstack Go + React Starter Kit"
 	@echo ""
 	@echo "$(BOLD)Usage:$(RESET)"
 	@echo "  make $(CYAN)<target>$(RESET) [$(YELLOW)VARIABLE=value$(RESET)]"

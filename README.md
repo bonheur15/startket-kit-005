@@ -258,12 +258,12 @@ go-starter-kit/
 ├── data/                   # SQLite database files (gitignored)
 ├── web/                    # React frontend (Vite)
 │   ├── src/
-│   │   ├── App.jsx         # Main dashboard component
-│   │   ├── api.js          # API client
-│   │   ├── hooks.js        # Custom React hooks
+│   │   ├── App.tsx         # Main dashboard component
+│   │   ├── api.ts          # API client
+│   │   ├── hooks.ts        # Custom React hooks
 │   │   └── components/     # UI components
 │   ├── index.html
-│   └── vite.config.js
+│   └── vite.config.ts
 ├── Makefile                # Build system
 ├── Dockerfile              # Multi-stage Docker build
 ├── VERSION                 # Current version

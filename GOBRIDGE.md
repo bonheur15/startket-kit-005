@@ -4,10 +4,10 @@ GoBridge is an advanced, high-performance bridge that connects your Go backend w
 
 ## Features
 
-- **🚀 Type Safety**: Full end-to-end typing. If you change a field in Go, TypeScript will immediately show an error in your React components.
-- **🔄 Auto-Generation**: Your TypeScript client is automatically updated during development when you register new procedures.
-- **📦 Advanced Caching**: Built-in caching and revalidation logic via the `useBridge` hook.
-- **🔒 Secure**: Handles custom headers, authentication, and error propagation out of the box.
+- **Type Safety**: Full end-to-end typing. If you change a field in Go, TypeScript will immediately show an error in your React components.
+- **Auto-Generation**: Your TypeScript client is automatically updated during development when you register new procedures.
+- **Advanced Caching**: Built-in caching and revalidation logic via the `useBridge` hook.
+- **Secure**: Handles custom headers, authentication, and error propagation out of the box.
 
 ---
 
